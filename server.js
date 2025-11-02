@@ -8,8 +8,18 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+// ✅ CONFIGURACIÓN CORS COMPLETA
+app.use(cors({
+  origin: [
+    'https://eco-admin-dashboard.netlify.app',  // Tu admin en Netlify
+    'https://ecoxnuestrofuturo.mx',             // Tu sitio principal
+    'http://localhost:3000',                    // Desarrollo local
+    'http://localhost:5173'                     // Vite dev server
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 // Conexión a MongoDB
