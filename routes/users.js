@@ -1,4 +1,4 @@
-// components/Users.tsx - COMPLETO CON ELIMINAR
+// components/Users.js - VERSIÓN JAVASCRIPT
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,21 +21,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface User {
-  _id: string;
-  email: string;
-  nombre: string;
-  rol: string;
-  activo: boolean;
-  fechaCreacion: string;
-}
-
 export default function Users() {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -51,7 +42,7 @@ export default function Users() {
       });
       
       if (res.ok) {
-        const usersData: User[] = await res.json();
+        const usersData = await res.json();
         setUsers(usersData);
       } else {
         console.error('Error fetching users:', res.status);
@@ -63,11 +54,11 @@ export default function Users() {
     }
   };
 
-  const handleUserCreated = (newUser: User) => {
+  const handleUserCreated = (newUser) => {
     setUsers(prev => [...prev, newUser]);
   };
 
-  const handleDeleteUser = async (userId: string, userName: string) => {
+  const handleDeleteUser = async (userId, userName) => {
     if (!confirm(`¿Estás seguro de que deseas eliminar al usuario "${userName}"? Esta acción no se puede deshacer.`)) {
       return;
     }
