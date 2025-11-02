@@ -1,0 +1,79 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+require('dotenv').config();
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use('/uploads', express.static('uploads'));
+
+// Conexión a MongoDB
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/eco-admin', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+// Event listeners para MongoDB
+mongoose.connection.on('connected', () => {
+  console.log('✅ Conectado a MongoDB');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('❌ Error de conexión a MongoDB:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('🔌 Desconectado de MongoDB');
+});
+
+// Rutas - ✅ SOLO UNA FORMA DE IMPORTAR
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/blogs', require('./routes/blogs'));
+app.use('/api/metrics', require('./routes/metrics'));
+app.use("/api/capsulas", require('./routes/capsulas'));
+app.use("/api/workshops", require('./routes/workshops'));
+app.use("/api/forms", require('./routes/forms'));
+
+// ✅ USA ESTA FORMA DIRECTA:
+app.use('/api/users', require('./routes/users'));
+
+// Ruta de diagnóstico
+app.get('/api/diagnostic', async (req, res) => {
+  try {
+    const dbStatus = mongoose.connection.readyState;
+    const dbStatusText = {
+      0: 'disconnected',
+      1: 'connected', 
+      2: 'connecting',
+      3: 'disconnecting'
+    }[dbStatus];
+
+    let userCount = 0;
+    if (dbStatus === 1) {
+      const User = require('./models/User');
+      userCount = await User.countDocuments();
+    }
+
+    res.json({
+      server: 'running',
+      mongodb: dbStatusText,
+      userCount: userCount,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.json({ 
+      server: 'running',
+      mongodb: 'error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Servidor ejecutándose en puerto ${PORT}`);
+});
