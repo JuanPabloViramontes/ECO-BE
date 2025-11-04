@@ -1,41 +1,51 @@
 // scripts/createTeamUsers.js
 const mongoose = require('mongoose');
-const User = require('../models/User'); // Ajusta la ruta
+const User = require('../models/User');
+require('dotenv').config();
 
 const teamUsers = [
   {
     email: 'ela@nuestrofuturo.mx',
-    password: 'ElaPassword2024!', // 🔹 CAMBIA ESTA CONTRASEÑA
+    password: 'nuestroeco135',
     nombre: 'Ela',
     rol: 'admin'
   },
   {
     email: 'constanza@nuestrofuturo.mx',
-    password: 'ConstanzaPassword2024!', // 🔹 CAMBIA ESTA CONTRASEÑA
+    password: 'nuestroeco246!',
     nombre: 'Constanza', 
     rol: 'admin'
   },
-  {
-    email: 'eco@nuestrofuturo.mx',
-    password: 'EcoPassword2024!', // 🔹 CAMBIA ESTA CONTRASEÑA
-    nombre: 'ECO Team',
-    rol: 'editor'
-  }
 ];
 
 async function createTeamUsers() {
   try {
-    await mongoose.connect('mongodb://localhost:27017/tudatabase', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+    // ✅ Conexión con opciones SSL
+    await mongoose.connect(process.env.MONGODB_URI, {
+      // Elimina estas líneas obsoletas:
+      // useNewUrlParser: true,
+      // useUnifiedTopology: true,
+      
+      // Agrega estas opciones SSL:
+      ssl: true,
+      tlsAllowInvalidCertificates: false,
+      retryWrites: true,
+      w: 'majority'
     });
-    console.log('Conectado a MongoDB...');
+    
+    console.log('📡 Conectado a MongoDB Atlas...');
 
     for (const userData of teamUsers) {
       try {
+        const userExists = await User.findOne({ email: userData.email });
+        if (userExists) {
+          console.log(`⚠️ Usuario ya existe: ${userData.email}`);
+          continue;
+        }
+
         const user = new User(userData);
         await user.save();
-        console.log(`✅ Usuario creado: ${user.email}`);
+        console.log(`✅ Usuario creado: ${userData.email}`);
       } catch (error) {
         if (error.code === 11000) {
           console.log(`⚠️ Usuario ya existe: ${userData.email}`);
@@ -48,10 +58,10 @@ async function createTeamUsers() {
     console.log('🎉 Proceso completado!');
     
   } catch (error) {
-    console.error('Error general:', error);
+    console.error('❌ Error general:', error);
   } finally {
     await mongoose.disconnect();
-    console.log('Desconectado de MongoDB');
+    console.log('🔌 Desconectado de MongoDB');
   }
 }
 

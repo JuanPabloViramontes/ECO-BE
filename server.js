@@ -4,22 +4,37 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 dotenv.config();
 
-
 const app = express();
 
-// Middleware
-// ✅ CONFIGURACIÓN CORS COMPLETA
-app.use(cors({
-  origin: [
-    'https://eco-admin-dashboard.netlify.app',  // Tu admin en Netlify
-    'https://ecoxnuestrofuturo.mx',             // Tu sitio principal
-    'http://localhost:3000',                    // Desarrollo local
-    'http://localhost:5173'                     // Vite dev server
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));app.use(express.json());
+// ✅ Middleware CORS (más robusto)
+const allowedOrigins = [
+  'https://eco-admin-dashboard.netlify.app',  // Tu admin en Netlify
+  'https://ecoxnuestrofuturo.mx',             // Tu sitio principal
+  'http://localhost:3000',                    // Local dev
+  'http://localhost:5173',                    // Vite dev server
+  'http://localhost:8080'                     // Tu admin local actual
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  // ✅ Responder manualmente las peticiones preflight (Render necesita esto)
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
+// Middleware JSON y estáticos
+app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
 // Conexión a MongoDB
@@ -28,7 +43,6 @@ mongoose.connect(process.env.MONGODB_URI, {
   useUnifiedTopology: true,
 });
 
-// Event listeners para MongoDB
 mongoose.connection.on('connected', () => {
   console.log('✅ Conectado a MongoDB');
 });
@@ -41,15 +55,13 @@ mongoose.connection.on('disconnected', () => {
   console.log('🔌 Desconectado de MongoDB');
 });
 
-// Rutas - ✅ SOLO UNA FORMA DE IMPORTAR
+// Rutas
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/blogs', require('./routes/blogs'));
 app.use('/api/metrics', require('./routes/metrics'));
-app.use("/api/capsulas", require('./routes/capsulas'));
-app.use("/api/workshops", require('./routes/workshops'));
-app.use("/api/forms", require('./routes/forms'));
-
-// ✅ USA ESTA FORMA DIRECTA:
+app.use('/api/capsulas', require('./routes/capsulas'));
+app.use('/api/workshops', require('./routes/workshops'));
+app.use('/api/forms', require('./routes/forms'));
 app.use('/api/users', require('./routes/users'));
 
 // Ruta de diagnóstico
@@ -85,7 +97,8 @@ app.get('/api/diagnostic', async (req, res) => {
   }
 });
 
+// Servidor
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Servidor ejecutándose en puerto ${PORT}`);
+  console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
 });
