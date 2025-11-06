@@ -12,7 +12,8 @@ const allowedOrigins = [
   'https://ecoxnuestrofuturo.mx',             // Tu sitio principal
   'http://localhost:3000',                    // Local dev
   'http://localhost:5173',                    // Vite dev server
-  'http://localhost:8080'                     // Tu admin local actual
+  'http://localhost:8080',
+  'https://eco-be.onrender.com'                 
 ];
 
 app.use((req, res, next) => {
