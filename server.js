@@ -46,15 +46,12 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 
 mongoose.connection.on('connected', () => {
-  console.log('✅ Conectado a MongoDB');
 });
 
 mongoose.connection.on('error', (err) => {
-  console.error('❌ Error de conexión a MongoDB:', err);
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('🔌 Desconectado de MongoDB');
 });
 
 // Rutas
@@ -102,5 +99,4 @@ app.get('/api/diagnostic', async (req, res) => {
 // Servidor
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
 });

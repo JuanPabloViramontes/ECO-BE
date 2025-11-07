@@ -59,7 +59,6 @@ router.get('/', async (req, res) => {
       total
     });
   } catch (error) {
-    console.error('Error fetching workshops:', error);
     res.status(500).json({ message: 'Error al obtener los talleres', error: error.message });
   }
 });
@@ -75,7 +74,6 @@ router.get('/:id', async (req, res) => {
 
     res.json(workshop);
   } catch (error) {
-    console.error('Error fetching workshop:', error);
     res.status(500).json({ message: 'Error al obtener el taller', error: error.message });
   }
 });
@@ -150,7 +148,6 @@ router.post('/', upload.single('flyer'), async (req, res) => {
     res.status(201).json(savedWorkshop);
 
   } catch (error) {
-    console.error('Error creating workshop:', error);
     res.status(500).json({ message: 'Error al crear el taller', error: error.message });
   }
 });
@@ -212,7 +209,6 @@ router.put('/:id', async (req, res) => {
     const updatedWorkshop = await workshop.save();
     res.json(updatedWorkshop);
   } catch (error) {
-    console.error('Error updating workshop:', error);
     res.status(500).json({ message: 'Error al actualizar el taller', error: error.message });
   }
 });
@@ -236,7 +232,6 @@ router.delete('/:id', async (req, res) => {
     await Workshop.findByIdAndDelete(req.params.id);
     res.json({ message: 'Taller eliminado exitosamente' });
   } catch (error) {
-    console.error('Error deleting workshop:', error);
     res.status(500).json({ message: 'Error al eliminar el taller', error: error.message });
   }
 });
@@ -263,7 +258,6 @@ router.patch('/:id/register', async (req, res) => {
 
     res.json(updatedWorkshop);
   } catch (error) {
-    console.error('Error registering for workshop:', error);
     res.status(500).json({ message: 'Error al inscribirse en el taller', error: error.message });
   }
 });
@@ -284,7 +278,6 @@ router.patch('/:id/cancel-registration', async (req, res) => {
     const updatedWorkshop = await workshop.save();
     res.json(updatedWorkshop);
   } catch (error) {
-    console.error('Error canceling registration:', error);
     res.status(500).json({ message: 'Error al cancelar la inscripción', error: error.message });
   }
 });

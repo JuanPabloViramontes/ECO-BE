@@ -7,17 +7,13 @@ const router = express.Router();
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  try {
-    console.log('Email:', email);
-    console.log('Password recibida:', password);
-    
+  try { 
     const user = await User.findOne({ email });
     
     if (!user) {
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
 
-    console.log('Contraseña almacenada (hash):', user.password);
     
     // intenta usar el método del modelo si existe, si no usa bcrypt.compare
     let isMatch = false;
@@ -26,7 +22,6 @@ router.post('/login', async (req, res) => {
     } else {
       isMatch = await bcrypt.compare(password, user.password);
     }
-    console.log('¿Coinciden?', isMatch);
     
     if (!isMatch) {
       return res.status(401).json({ message: 'Credenciales inválidas' });
@@ -40,7 +35,6 @@ router.post('/login', async (req, res) => {
 
     res.json({ token });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'Error en el servidor' });
   }
 });
@@ -79,7 +73,6 @@ router.post('/reset-and-create', async (req, res) => {
 
     await user.save();
     
-    console.log('Nuevo usuario creado:', user);
     res.json({ 
       message: 'Usuario recreado correctamente',
       credenciales: {

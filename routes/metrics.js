@@ -106,7 +106,6 @@ router.get('/overview', async (req, res) => {
       topLocation: topLocation
     });
   } catch (err) {
-    console.error('Error en /overview:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -147,7 +146,6 @@ router.post('/track-download', async (req, res) => {
   try {
     const { documentName, category } = req.body;
     
-    console.log('📥 Registrando descarga:', { documentName, category });
     
     const metric = new Metric({
       type: 'document_download',
@@ -159,7 +157,6 @@ router.post('/track-download', async (req, res) => {
     });
     
     await metric.save();
-    console.log('✅ Descarga registrada ID:', metric._id);
     
     res.json({ 
       success: true, 
@@ -167,7 +164,6 @@ router.post('/track-download', async (req, res) => {
       id: metric._id 
     });
   } catch (err) {
-    console.error('❌ Error registrando descarga:', err);
     res.status(500).json({ 
       success: false,
       message: err.message 
