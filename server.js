@@ -13,6 +13,7 @@ const allowedOrigins = [
   'http://localhost:3000',                    // Local dev
   'http://localhost:5173',                    // Vite dev server
   'http://localhost:8080',
+   'http://localhost:8081',
   'https://eco-be.onrender.com'                 
 ];
 
