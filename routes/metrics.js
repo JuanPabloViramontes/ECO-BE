@@ -67,6 +67,9 @@ router.get('/overview', async (req, res) => {
       type: 'user_visit', 
       createdAt: { $gte: last7Days } 
     });
+    // En el endpoint /overview, modifica cómo lees lettersCount
+const lettersMetric = await Metric.findOne({ type: 'letters_count' });
+const lettersCount = lettersMetric?.data?.count || 0; // 👈 Ahora lee data.count
 
     // FORMULARIOS - usar las métricas ya que FormSubmission está vacío
     const formsFromMetrics = await Metric.countDocuments({ type: 'form_submission' });
@@ -90,21 +93,17 @@ router.get('/overview', async (req, res) => {
       ? `IP: ${topLocationAgg[0]._id}` 
       : 'Sin datos';
 
-    console.log('📊 DATOS CORREGIDOS:', {
-      visits: totalVisits,
-      forms: totalForms, // ← Ahora será 2 en lugar de 0
-      downloads: totalDownloads
-    });
 
-    res.json({
-      visits: { 
-        total: totalVisits || 0, 
-        last7: last7Visits || 0 
-      },
-      forms: totalForms || 0, // ← Esto ahora mostrará 2
-      downloads: totalDownloads || 0,
-      topLocation: topLocation
-    });
+   res.json({
+  visits: { 
+    total: totalVisits || 0, 
+    last7: last7Visits || 0 
+  },
+  forms: totalForms || 0,
+  downloads: totalDownloads || 0,
+  topLocation: topLocation,
+  lettersCount: lettersCount   // 👈 AGREGAR ESTO
+});
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -116,6 +115,77 @@ router.post('/track', async (req, res) => {
     res.status(201).json({ message: 'Metric registrada' });
   } catch (err) {
     res.status(400).json({ message: err.message });
+  }
+});
+// routes/metrics.js - ENDPOINT CORREGIDO
+router.post('/set-letters-count', async (req, res) => {
+  try {
+    const { count } = req.body;
+    
+    // Convertir a número si viene como string
+    const countNumber = Number(count);
+    
+    // Validación más flexible
+    if (isNaN(countNumber)) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Count debe ser un número válido' 
+      });
+    }
+
+    // Buscar si ya existe
+    let lettersMetric = await Metric.findOne({ type: 'letters_count' });
+
+    if (lettersMetric) {
+      // 👇 IMPORTANTE: Guardar en data.count, no data = { count }
+      lettersMetric.data.count = countNumber;
+      lettersMetric.updatedAt = new Date();
+      await lettersMetric.save();
+    } else {
+      lettersMetric = new Metric({
+        type: 'letters_count',
+        data: { 
+          count: countNumber  // 👈 Guardar como propiedad de data
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      await lettersMetric.save();
+    }
+
+    res.json({ 
+      success: true, 
+      count: countNumber,
+      message: 'Contador guardado correctamente'
+    });
+  } catch (err) {
+    console.error('❌ Error en set-letters-count:', err);
+    res.status(500).json({ 
+      success: false,
+      message: err.message
+    });
+  }
+});
+// routes/metrics.js - AGREGAR ESTE ENDPOINT DE DIAGNÓSTICO
+router.get('/debug-letters', async (req, res) => {
+  try {
+    const lettersMetric = await Metric.findOne({ type: 'letters_count' });
+    
+    res.json({
+      exists: !!lettersMetric,
+      lettersMetric: lettersMetric ? {
+        id: lettersMetric._id,
+        type: lettersMetric.type,
+        data: lettersMetric.data,
+        createdAt: lettersMetric.createdAt,
+        updatedAt: lettersMetric.updatedAt
+      } : null,
+      allMetricsByType: await Metric.aggregate([
+        { $group: { _id: '$type', count: { $sum: 1 } } }
+      ])
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 // routes/metrics.js - AGREGAR ESTO
