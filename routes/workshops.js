@@ -122,7 +122,6 @@ router.post(
       capacity,
       price,
       category,
-      registered,
       requirements,
       materials,
       status
@@ -181,6 +180,7 @@ router.put('/:id', async (req, res) => {
       duration,
       location,
       capacity,
+      registered,
       status,
       image,
       price,
