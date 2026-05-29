@@ -7,24 +7,29 @@ const capsuleSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+
   description: {
     type: String,
     required: true
   },
+
   videoUrl: {
     type: String,
     required: true
   },
+
   category: {
     type: String,
     required: true,
-    enum: ['abogadas', 'juventudes', 'cientificos'],
-    default: 'abogadas'
+    trim: true,
+    default: 'General'
   },
+
   isPublic: {
     type: Boolean,
     default: true
   }
+
 }, {
   timestamps: true
 });
