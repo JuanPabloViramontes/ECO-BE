@@ -122,6 +122,7 @@ router.post(
       capacity,
       price,
       category,
+      registered,
       requirements,
       materials,
       status
@@ -210,6 +211,12 @@ router.put('/:id', async (req, res) => {
     if (duration) workshop.duration = duration;
     if (location) workshop.location = location;
     if (capacity) workshop.capacity = parseInt(capacity);
+    if (registered !== undefined) {
+  workshop.registered = Math.max(
+    0,
+    Math.min(parseInt(registered), workshop.capacity)
+  );
+}
     if (status) workshop.status = status;
     if (image !== undefined) workshop.image = image;
     if (price !== undefined) workshop.price = price;
