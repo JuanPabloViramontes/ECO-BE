@@ -50,6 +50,9 @@ const workshopSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  galleryImages: [{
+  type: String
+}],
   price: {
     type: Number,
     default: 0

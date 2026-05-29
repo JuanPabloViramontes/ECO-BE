@@ -103,7 +103,13 @@ const upload = multer({
 });
 
 // 📤 Crear nuevo taller con imagen
-router.post('/', upload.single('flyer'), async (req, res) => {
+router.post(
+  '/',
+  upload.fields([
+    { name: 'flyer', maxCount: 1 },
+    { name: 'galleryImages', maxCount: 10 }
+  ]),
+  async (req, res) => {
   try {
     const {
       title,
@@ -125,8 +131,17 @@ router.post('/', upload.single('flyer'), async (req, res) => {
       return res.status(400).json({ message: 'Todos los campos obligatorios deben ser llenados' });
     }
 
-    const imagePath = req.file ? `/uploads/workshops/${req.file.filename}` : '';
+const flyerFile = req.files?.flyer?.[0];
 
+const imagePath = flyerFile
+  ? `/uploads/workshops/${flyerFile.filename}`
+  : '';
+
+const galleryImages = req.files?.galleryImages
+  ? req.files.galleryImages.map(
+      (file) => `/uploads/workshops/${file.filename}`
+    )
+  : [];
     const newWorkshop = new Workshop({
       title,
       description,
@@ -136,7 +151,8 @@ router.post('/', upload.single('flyer'), async (req, res) => {
       duration,
       location,
       capacity: parseInt(capacity),
-      image: imagePath, // 👈 guarda la ruta del flyer
+      image: imagePath,
+      galleryImages,
       price: price || 0,
       category: category || 'educacion-ambiental',
       requirements: JSON.parse(requirements || '[]'),
