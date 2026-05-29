@@ -108,7 +108,7 @@ router.post('/', upload.single('flyer'), async (req, res) => {
     const {
       title,
       description,
-      instructor,
+      instructorInstagram,
       date,
       time,
       duration,
@@ -121,7 +121,7 @@ router.post('/', upload.single('flyer'), async (req, res) => {
       status
     } = req.body;
 
-    if (!title || !description || !instructor || !date || !time || !duration || !location || !capacity) {
+    if (!title || !description || !instructorInstagram || !date || !time || !duration || !location || !capacity) {
       return res.status(400).json({ message: 'Todos los campos obligatorios deben ser llenados' });
     }
 
@@ -130,7 +130,7 @@ router.post('/', upload.single('flyer'), async (req, res) => {
     const newWorkshop = new Workshop({
       title,
       description,
-      instructor,
+      instructorInstagram,
       date: new Date(date),
       time,
       duration,
@@ -158,7 +158,7 @@ router.put('/:id', async (req, res) => {
     const {
       title,
       description,
-      instructor,
+      instructorInstagram,
       date,
       time,
       duration,
@@ -181,7 +181,7 @@ router.put('/:id', async (req, res) => {
     // Actualizar campos
     if (title) workshop.title = title;
     if (description) workshop.description = description;
-    if (instructor) workshop.instructor = instructor;
+    if (instructorInstagram) workshop.instructorInstagram = instructorInstagram;
     if (date) {
       const workshopDate = new Date(date);
       // 🔹 SOLO VALIDAR FECHA FUTURA SI NO ESTÁ CANCELADO

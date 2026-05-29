@@ -62,6 +62,7 @@ app.use('/api/capsulas', require('./routes/capsulas'));
 app.use('/api/workshops', require('./routes/workshops'));
 app.use('/api/forms', require('./routes/forms'));
 app.use('/api/users', require('./routes/users'));
+app.use('/uploads', express.static('uploads'));
 
 // Ruta de diagnóstico
 app.get('/api/diagnostic', async (req, res) => {

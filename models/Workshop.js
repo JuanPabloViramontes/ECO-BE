@@ -10,7 +10,7 @@ const workshopSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  instructor: {
+  instructorInstagram: {
     type: String,
     required: true,
     trim: true
